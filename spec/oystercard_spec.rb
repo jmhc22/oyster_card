@@ -20,28 +20,30 @@ describe OysterCard do
     end
   end
 
-  describe "Paying for a journey" do
-    it "should deduct the fare from my balance" do
-      subject.top_up(20)
-      subject.deduct(5)
-      expect(subject.balance).to eq 15
-    end
-  end
-
   describe "#touch_in" do
     it "should set the in journey status to true" do
-      # subject.top_up(90)
+      subject.top_up(90)
       subject.touch_in
       expect(subject.in_journey).to eq true
+    end
+
+    it "raises an error if card does not have required minimum balance" do
+      expect{subject.touch_in}.to raise_error("Fare exceeds available balance")
     end
   end
 
   describe "#touch_out" do
     it "should set the in journey status to false" do
-      # subject.top_up(90)
       subject.touch_out
       expect(subject.in_journey).to eq false
     end
+
+    it 'reduces card balance by minimum fare' do
+      subject.top_up(10)
+      subject.touch_in
+      expect{subject.touch_out}.to change{subject.balance}.by(-OysterCard::MINIMUM_FARE)
+    end
+
   end
 
 
