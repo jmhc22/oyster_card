@@ -13,5 +13,12 @@ describe OysterCard do
       subject.top_up(10)
       expect(subject.balance).to eq 10
     end
+
+    it 'caps the balance at BALANCE_CAP' do
+      subject.top_up(OysterCard::BALANCE_CAP)
+      expect{subject.top_up(1)}.to raise_error("Maximum balance of #{OysterCard::BALANCE_CAP} reached")
+    end
   end
+
+
 end
