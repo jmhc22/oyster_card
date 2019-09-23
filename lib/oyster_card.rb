@@ -6,9 +6,12 @@ class OysterCard
     @balance = 0
   end
 
-  def top_up(num)
-    @balance >=BALANCE_CAP ? raise("Maximum balance of #{BALANCE_CAP} reached") : @balance += num
-    # return @balance +=  num
-    
+  def top_up(amount)
+    @balance >=BALANCE_CAP ? raise("Maximum balance of #{BALANCE_CAP} reached") : @balance += amount
   end
+
+  def deduct(amount)
+    @balance -= amount
+  end
+
 end

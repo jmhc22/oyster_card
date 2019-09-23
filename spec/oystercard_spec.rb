@@ -20,5 +20,12 @@ describe OysterCard do
     end
   end
 
+  describe "Paying for a journey" do
+    it "should deduct the fare from my balance" do
+      subject.top_up(20)
+      subject.deduct(5)
+      expect(subject.balance).to eq 15
+    end
+  end
 
 end
