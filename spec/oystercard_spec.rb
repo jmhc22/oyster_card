@@ -28,4 +28,21 @@ describe OysterCard do
     end
   end
 
+  describe "#touch_in" do
+    it "should set the in journey status to true" do
+      # subject.top_up(90)
+      subject.touch_in
+      expect(subject.in_journey).to eq true
+    end
+  end
+
+  describe "#touch_out" do
+    it "should set the in journey status to false" do
+      # subject.top_up(90)
+      subject.touch_out
+      expect(subject.in_journey).to eq false
+    end
+  end
+
+
 end
