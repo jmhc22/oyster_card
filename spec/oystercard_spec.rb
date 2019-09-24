@@ -3,6 +3,8 @@ require 'oyster_card'
 describe OysterCard do
 
   let(:station_a) { double :station_a }
+  let(:station_b) { double :station_b }
+  let(:journey) { {entry_station: station_a, exit_station: station_b } }
 
   before(:each) do
     subject.top_up(20)
@@ -45,26 +47,31 @@ describe OysterCard do
       subject.touch_in(station_a)
       expect(subject.entry_station).to eq station_a
     end
+
   end
 
   describe "#touch_out" do
     it "should set the in journey status to false" do
-      subject.touch_out
+      subject.touch_out(station_b)
       expect(subject.in_journey).to eq false
     end
 
     it 'reduces card balance by minimum fare' do
       subject.top_up(10)
       subject.touch_in(station_a)
-      expect{subject.touch_out}.to change{subject.balance}.by(-OysterCard::MINIMUM_FARE)
+      expect{subject.touch_out(station_b)}.to change{subject.balance}.by(-OysterCard::MINIMUM_FARE)
     end
 
     it 'tapping out will reset entry station to nil' do
       subject.touch_in(station_a)
-      subject.touch_out
+      subject.touch_out(station_b)
       expect(subject.entry_station).to eq nil
     end
   end
 
-
+    it "should permantly store the complete journey just made when tapping out" do
+    subject.touch_in(station_a)
+    subject.touch_out(station_b)
+    expect(subject.journey_history).to include journey
+    end
 end
