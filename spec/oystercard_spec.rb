@@ -4,7 +4,6 @@ describe OysterCard do
 
   let(:station_a) { double :station_a }
   let(:station_b) { double :station_b }
-  let(:journey) { {entry_station: station_a, exit_station: station_b } }
 
   before(:each) do
     subject.top_up(20)
@@ -32,10 +31,10 @@ describe OysterCard do
   end
 
   describe "#touch_in" do
-    it "should set the in journey status to true" do
+    it "should set the journey status to a journey object" do
       subject.top_up(90)
       subject.touch_in(station_a)
-      expect(subject.journey).to_not be nil
+      expect(subject.journey).to be_a Journey
     end
 
     it "raises an error if card does not have required minimum balance" do
@@ -45,7 +44,12 @@ describe OysterCard do
 
     it "stores tap in station as a variable" do
       subject.touch_in(station_a)
-      expect(subject.journey.full_journey[:entry_station]).to eq station_a
+      expect(subject.journey.route[:entry_station]).to eq station_a
+    end
+
+    it "touching in twice will charge maximum fare of £6" do
+      subject.touch_in(station_a)
+      expect{subject.touch_in(station_b)}.to change{subject.balance}.by(-6)
     end
 
   end
@@ -63,16 +67,20 @@ describe OysterCard do
       expect{subject.touch_out(station_b)}.to change{subject.balance}.by(-OysterCard::MINIMUM_FARE)
     end
 
-    it 'tapping out will reset entry station to nil' do
-      subject.touch_in(station_a)
+    it 'touching out twice without touching in will create two journeys in history' do
+      subject.touch_out(station_a)
       subject.touch_out(station_b)
-      expect(subject.entry_station).to eq nil
+      expect(subject.journey_history.size).to eq 2
+    end
+
+    it 'touching out without touching in will decrease balance by £6' do
+      expect{subject.touch_out(station_a)}.to change{subject.balance}.by(-6)
     end
   end
 
     it "should permantly store the complete journey just made when tapping out" do
     subject.touch_in(station_a)
     subject.touch_out(station_b)
-    expect(subject.journey_history).to include journey
+    expect(subject.journey_history.size).to eq 1
     end
 end

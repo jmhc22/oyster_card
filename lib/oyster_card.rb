@@ -6,7 +6,7 @@ class OysterCard
   BALANCE_CAP = 90
   MINIMUM_FARE = 1
 
-  attr_reader :balance, :journey, :entry_station, :journey_history
+  attr_reader :balance, :journey, :journey_history
 
   def initialize
     @balance = 0
@@ -20,21 +20,42 @@ class OysterCard
 
   def touch_in(entry_station)
     raise "Fare exceeds available balance" if @balance < MINIMUM_FARE
-
-    @journey = Journey.new(entry_station)
+    double_touch_in unless @journey == nil
+    new_journey_obj(entry_station)
   end
 
   def touch_out(exit_station)
-    deduct
-    @journey.complete_journey(exit_station)
-    @journey_history << @journey.full_journey
-    @journey = nil
+    no_touch_in if @journey == nil
+    @journey.end_journey(exit_station)
+    deduct(@journey.fare)
+    save_journey
   end
 
   private
 
-  def deduct
-    @balance -= MINIMUM_FARE
+  def deduct(fare = MINIMUM_FARE)
+    @balance -= fare
+  end
+
+  def double_touch_in
+    @journey.no_exit
+    deduct(@journey.fare)
+    save_journey
+  end
+
+  def no_touch_in
+    @journey = Journey.new
+    @journey.no_entry
+  end
+
+  def new_journey_obj(entry_station)
+    @journey = Journey.new
+    @journey.start_journey(entry_station)
+  end
+
+  def save_journey
+    @journey_history << @journey
+    @journey = nil
   end
 
 end
